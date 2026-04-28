@@ -1,7 +1,7 @@
 ORG 0                   ; Place the origin of our address to 0x7c00
 BITS 16                 ; Switch to 16-bit code to be able to work in real mode
 
-jmp 0x7c0:start
+jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start (0)
 
 start:
     cli                 ; Clear interrupts
