@@ -6,14 +6,14 @@ jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start (0)
 start:
     cli                 ; Clear interrupts
     mov ax, 0x7c0
-    mov ds, ax
-    mov es, ax
-    mov ax, 0x00
-    mov ss, ax
-    mov sp, 0x7c00
-    sti                 ; Enables interrupts
+    mov ds, ax          ; Update the data segment register to 0x7c0
+    mov es, ax          ; Update the extra segment register to 0x7c0
+    mov ax, 0x00        
+    mov ss, ax          ; Update the stack segment register to 0x00
+    mov sp, 0x7c00      ; Update the stack pointer to 0x7c00
+    sti                 ; Enable interrupts
 
-    mov si, message     ;
+    mov si, message     
     call print
 
     jmp $               ; Infinite loop so it doesn't try to execute our data
