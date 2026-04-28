@@ -22,7 +22,7 @@ print_char:
     ret
 
 
-message db "Hello, world!", 0xa 
+message db "Hello, world!", 0
 
 times 510 - ($-$$) db 0 ;Fill the rest of the sector with zeros until byte number 510
 dw 0xaa55               ;Place the signature at the last two bytes (511 & 512)
