@@ -1,24 +1,34 @@
-ORG 0x7c00              ;Place the origin of our address to 0x7c00
-BITS 16                 ;Switch to 16-bit code to be able to work in real mode
+ORG 0                   ; Place the origin of our address to 0x7c00
+BITS 16                 ; Switch to 16-bit code to be able to work in real mode
 
 start:
-    mov si, message     
+    cli                 ; Clear interrupts
+    mov ax, 0x7c0
+    mov ds, ax
+    mov es, ax
+    mov ax, 0x00
+    mov ss, ax
+    mov sp, 0x7c00
+    sti                 ; Enables interrupts
+
+    mov si, message     ;
     call print
-    jmp $               ;infinite loop
+
+    jmp $               ; Infinite loop so it doesn't try to execute our data
 
 print:
-    mov bx, 0           ;select page number
+    mov bx, 0           ; Select page number
 .loop:
     lodsb               
     cmp al, 0
-    je .done            ;return if string is done
-    call print_char     ;else -> print the char
+    je .done            ; Return if string is done
+    call print_char     ; Else -> print the char
     jmp .loop
 .done:
     ret
 print_char:
-    mov ah, 0x0e        ;teletype output
-    int 0x10            ;calls BOIS video functions
+    mov ah, 0x0e        ; Teletype output
+    int 0x10            ; Calls BOIS video functions
     ret
 
 
