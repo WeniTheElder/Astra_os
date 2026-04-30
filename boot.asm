@@ -45,7 +45,7 @@ times 3 db 0            ; Starting CHS (Dummy values), BIOS ignores it for type 
 db 0x0C                 ; Partition type, 0x0C = FAT32 with LBA
 times 3 db 0            ; Ending CHS (Dummy values)
 dd 2048                 ; Starting LBA. Modern partitions typically start at sector 2048. You can totally make 1 (Start from the second sector)
-dd 125120120            ; Size in sectors: 125,120,120 sectors (60 GB) The size of our flash drive
+dd 120120120            ; Size in sectors: 125,120,120 sectors (60 GB) The size of our flash drive
 
 ; Partition Table Entries 2, 3, and 4 (Unused)
 times 48 db 0           ; Fill the next 48 bytes with zeros (The last 3 entries)
