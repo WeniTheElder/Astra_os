@@ -35,7 +35,7 @@ print_char:
     ret
 
 
-message db "Hello, world!", 0
+message db "I didn't crash!!", 0
 
 times 446 - ($-$$) db 0 ; Fill the rest of the sector with zeros until byte 446
 
