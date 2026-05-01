@@ -4,6 +4,8 @@ jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start label
 
 ; Interrupt handler for interrupt zero
 handle_zero:
+    ; This's interrupt prints is called when a division by zero happens
+    ; All it does it print the Division_by_zero_message
     mov si, Division_by_zero_message
 .loop:
     lodsb
