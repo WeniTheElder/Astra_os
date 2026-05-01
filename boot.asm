@@ -2,13 +2,20 @@ BITS 16                 ; Switch to 16-bit code to be able to work in real mode
 
 jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start label
 
+; Interrupt handler for interrupt zero
 handle_zero:
-    ; Interrupt handler for interrupt zero
-    ; Prints character 'A'
+    mov si, interupt_message
+.loop:
+    lodsb
+    cmp al, 0x00
+    je .done
+    call .print_char
+    jmp .loop
+.print_char:
     mov ah, 0x0e
-    mov al, 'A'
-    mov bx, 0x00
     int 0x10
+    ret
+.done:
     iret
 
 start:
@@ -21,17 +28,19 @@ start:
     mov sp, 0x7800      ; Set the Stack pointer to point at address 0x7800 (0x7800 + 16 * 0x0040 = 0x7c00)
     sti                 ; Renable interrupts
 
-    ; Add The interrupt entry at address 0x0000
+    ; Add IVT entries
     mov ax, 0x0000                      
     mov es, ax                          ; Update extra segment register to use it to access IVT
     mov word[es:0x0000], handle_zero    ; Add the offset address of the handle_zero to the first two bytes of memory
     mov word[es:0x0002], ds             ; Add the segment address to the next bytes in memroy
 
-    int 0
 
 
     mov si, message     
     call print
+
+    mov ax, 0x00
+    div ax              ; Division by zero will call interrupt 0
 
     jmp $               ; Infinite loop so it doesn't try to execute our data
 
@@ -51,7 +60,9 @@ print_char:
     ret
 
 
-message db "I didn't crash!!", 0
+message db "Yastaaaa! I didn't crash!!", 13, 10, 0x00
+interupt_message db "Made it to the interrupt handeler :D", 13, 10, 0x00
+second_interrupt_message db "Second Interrupt was called <3", 0x00
 
 times 446 - ($-$$) db 0 ; Fill the rest of the sector with zeros until byte 446
 
