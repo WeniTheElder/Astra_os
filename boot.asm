@@ -14,18 +14,18 @@ handle_zero:
 start:
     cli                 ; Clear interrupts
     ; Update registers
-    mov ax, 0x7c0
-    mov ds, ax          ; Set the data segment register to 0x7c0
-    mov ax, 0x0040      ; Segment base for address 1024 (1024 / 16 = 0x0040) 
-    mov ss, ax          ; Set the stack segment register to 0x0040 to be after the IVT
-    mov sp, 0x7800      ; Set the stack pointer so absolute address is 0x7c00 (0x0400 + 0x7800)
-
+    mov ax, 0x07c0      ; Move address 0x07c0 to the a register
+    mov ds, ax          ; Set the Data Segment Register to point to address 0x07c0
+    mov ax, 0x0040      ; Move address 0x0040 to the a register
+    mov ss, ax          ; Set the Stack Segment Register to point to address 0x0040*16 (1024) to be after IVT
+    mov sp, 0x7800      ; Set the Stack pointer to point at address 0x7800 (0x7800 + 16 * 0x0040 = 0x7c00)
     sti                 ; Renable interrupts
 
-    mov ax, 0x0000      ; Set Extra Segment to 0 to access the IVT
-    mov es, ax
-    mov word[es:0x00], handle_zero ; Add the offset address of handle_zero to address 0x00
-    mov word[es:0x02], ds          ; Add the segment address to the next 2 bytes
+    ; Add The interrupt entry at address 0x0000
+    mov ax, 0x0000                      
+    mov es, ax                          ; Update extra segment register to use it to access IVT
+    mov word[es:0x0000], handle_zero    ; Add the offset address of the handle_zero to the first two bytes of memory
+    mov word[es:0x0002], ds             ; Add the segment address to the next bytes in memroy
 
     int 0
 
