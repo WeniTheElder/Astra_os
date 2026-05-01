@@ -1,18 +1,34 @@
 BITS 16                 ; Switch to 16-bit code to be able to work in real mode
 
-jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start (0)
+jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start label
+
+handle_zero:
+    ; Interrupt handler for interrupt zero
+    ; Prints character 'A'
+    mov ah, 0x0e
+    mov al, 'A'
+    mov bx, 0x00
+    int 0x10
+    iret
 
 start:
     cli                 ; Clear interrupts
     ; Update registers
     mov ax, 0x7c0
     mov ds, ax          ; Set the data segment register to 0x7c0
-    mov es, ax          ; Set the extra segment register to 0x7c0
-    mov ax, 0x00        
-    mov ss, ax          ; Set the stack segment register to 0x00
-    mov sp, 0x7c00      ; Set the stack pointer to 0x7c00
+    mov ax, 0x0040      ; Segment base for address 1024 (1024 / 16 = 0x0040) 
+    mov ss, ax          ; Set the stack segment register to 0x0040 to be after the IVT
+    mov sp, 0x7800      ; Set the stack pointer so absolute address is 0x7c00 (0x0400 + 0x7800)
 
     sti                 ; Renable interrupts
+
+    mov ax, 0x0000      ; Set Extra Segment to 0 to access the IVT
+    mov es, ax
+    mov word[es:0x00], handle_zero ; Add the offset address of handle_zero to address 0x00
+    mov word[es:0x02], ds          ; Add the segment address to the next 2 bytes
+
+    int 0
+
 
     mov si, message     
     call print
@@ -22,7 +38,7 @@ start:
 print:
     mov bx, 0           ; Select page number
 .loop:
-    lodsb               
+    lodsb               ; Moves char from [ds:si] to al and increments si to point to the next char
     cmp al, 0
     je .done            ; Return if string is done (char == 0)
     call print_char     ; Else -> print the char
