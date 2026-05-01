@@ -4,7 +4,7 @@ jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start label
 
 ; Interrupt handler for interrupt zero
 handle_zero:
-    mov si, interupt_message
+    mov si, Division_by_zero_message
 .loop:
     lodsb
     cmp al, 0x00
@@ -61,8 +61,7 @@ print_char:
 
 
 message db "Yastaaaa! I didn't crash!!", 13, 10, 0x00
-interupt_message db "Made it to the interrupt handeler :D", 13, 10, 0x00
-second_interrupt_message db "Second Interrupt was called <3", 0x00
+Division_by_zero_message db "Can't divide by zero!", 13, 10, 0x00
 
 times 446 - ($-$$) db 0 ; Fill the rest of the sector with zeros until byte 446
 
