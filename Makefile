@@ -5,4 +5,5 @@ build:
 	@echo "Assembling..."
 	@nasm -f bin ./boot.asm -o boot.bin
 clean: 
+	@echo "cleaning"
 	@rm boot.bin

@@ -1,52 +1,42 @@
+ORG 0
 BITS 16                 ; Switch to 16-bit code to be able to work in real mode
 
 jmp 0x7c0:start         ; Set cs to 0x7c0 and ip to start label
 
-; Interrupt handler for interrupt zero
-handle_zero:
-    ; This's interrupt prints is called when a division by zero happens
-    ; All it does it print the Division_by_zero_message
-    mov si, Division_by_zero_message
-.loop:
-    lodsb
-    cmp al, 0x00
-    je .done
-    call .print_char
-    jmp .loop
-.print_char:
-    mov ah, 0x0e
-    int 0x10
-    ret
-.done:
-    iret
-
 start:
     cli                 ; Clear interrupts
+
     ; Update registers
     mov ax, 0x07c0      ; Move address 0x07c0 to the a register
     mov ds, ax          ; Set the Data Segment Register to point to address 0x07c0
     mov ax, 0x0040      ; Move address 0x0040 to the a register
     mov ss, ax          ; Set the Stack Segment Register to point to address 0x0040*16 (1024) to be after IVT
     mov sp, 0x7800      ; Set the Stack pointer to point at address 0x7800 (0x7800 + 16 * 0x0040 = 0x7c00)
+    
     sti                 ; Renable interrupts
 
-    ; Add IVT entries
-    mov ax, 0x0000                      
-    mov es, ax                          ; Update extra segment register to use it to access IVT
-    mov word[es:0x0000], handle_zero    ; Add the offset address of the handle_zero to the first two bytes of memory
-    mov word[es:0x0002], ds             ; Add the segment address to the next bytes in memroy
+    mov ax, 0x07c0      ; Set up Extra Segment first
+    mov es, ax
+    mov ah, 2
+    mov al, 1
+    mov ch, 0
+    mov cl, 2
+    mov dh, 0
+    mov bx, buffer
+    int 0x13
+    jc error
 
+    mov si, buffer
     call print
-
-    mov ax, 0x00
-    div ax              ; Division by zero will call interrupt 0
 
     jmp $               ; Infinite loop so it doesn't try to execute our data
 
-
+error:
+    mov si, message
+    call print
+    jmp $               ; Halt execution so it doesn't fall through into print
 
 print:
-    mov si, message     ; Move message to si register     
     mov bx, 0           ; Select page number
 .loop:
     lodsb               ; Moves char from [ds:si] to al and increments si to point to the next char
@@ -60,10 +50,7 @@ print_char:
     mov ah, 0x0e        ; Teletype output
     int 0x10            ; Calls BOIS video functions
     ret
-
-message db "Yastaaaa! I didn't crash!!", 13, 10, 0x00
-Division_by_zero_message db "Can't divide by zero!", 13, 10, 0x00
-
+message: db "Failed to load sector", 0
 times 446 - ($-$$) db 0 ; Fill the rest of the sector with zeros until byte 446
 
 ; Partition Table Entry 1
@@ -78,3 +65,5 @@ dd 120120120            ; Size in sectors: 125,120,120 sectors (60 GB) The size 
 times 48 db 0           ; Fill the next 48 bytes with zeros (The last 3 entries)
 
 dw 0xaa55               ; Place the signature at the last two bytes (510 & 511)
+
+buffer:
