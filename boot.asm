@@ -15,24 +15,23 @@ start:
     
     sti                 ; Renable interrupts
 
-    mov ax, 0x07c0      ; Set up Extra Segment first
-    mov es, ax
-    mov ah, 2
-    mov al, 1
-    mov ch, 0
-    mov cl, 2
-    mov dh, 0
-    mov bx, buffer
-    int 0x13
-    jc error
-
-    mov si, buffer
-    call print
-
+    mov ax, 0x7c0       
+    mov es, ax          ; Set the extra segment to 0x7c0
+    mov bx, buffer     
+    mov ah, 0x02       
+    mov al, 1           ; Number of sectors to read
+    mov ch, 0           ; Cylinder number
+    mov dh, 0           ; Head number
+    mov cl, 2           ; Sector number
+    mov dl, 0x80        ; Drive number (0x80 = drive 0)
+    int 0x13            
+    jc  error           ; If an error happened jump to error
+    mov si, buffer      ; If not; move the read message from the buffer to si register
+    call print          
     jmp $               ; Infinite loop so it doesn't try to execute our data
 
 error:
-    mov si, message
+    mov si, error_message
     call print
     jmp $               ; Halt execution so it doesn't fall through into print
 
@@ -50,7 +49,8 @@ print_char:
     mov ah, 0x0e        ; Teletype output
     int 0x10            ; Calls BOIS video functions
     ret
-message: db "Failed to load sector", 0
+message: db "Hello, world!", 0
+error_message db "Coudn't read from the hard disk!", 0
 times 446 - ($-$$) db 0 ; Fill the rest of the sector with zeros until byte 446
 
 ; Partition Table Entry 1
