@@ -36,9 +36,6 @@ start:
     mov word[es:0x0000], handle_zero    ; Add the offset address of the handle_zero to the first two bytes of memory
     mov word[es:0x0002], ds             ; Add the segment address to the next bytes in memroy
 
-
-
-    mov si, message     
     call print
 
     mov ax, 0x00
@@ -46,7 +43,10 @@ start:
 
     jmp $               ; Infinite loop so it doesn't try to execute our data
 
+
+
 print:
+    mov si, message     ; Move message to si register     
     mov bx, 0           ; Select page number
 .loop:
     lodsb               ; Moves char from [ds:si] to al and increments si to point to the next char
@@ -60,7 +60,6 @@ print_char:
     mov ah, 0x0e        ; Teletype output
     int 0x10            ; Calls BOIS video functions
     ret
-
 
 message db "Yastaaaa! I didn't crash!!", 13, 10, 0x00
 Division_by_zero_message db "Can't divide by zero!", 13, 10, 0x00
