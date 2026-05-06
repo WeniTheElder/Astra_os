@@ -62,7 +62,8 @@ PModeMain:
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    mov esp, 0x7c00     ; Set up the stack pointer for protected mode
+    mov ebp, 0x00200000 
+    mov esp, ebp        ; Set up the stack pointer for protected mode
     jmp $               ; Infinite jump so it doesn't try to execute our data
 ;
 
