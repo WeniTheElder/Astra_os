@@ -11,16 +11,16 @@ start:
     mov ax, 0x0         ; Move address 0x0 to the ax register
     mov ds, ax          ; Set the Data Segment Register to point to address 0x0
     mov es, ax          ; Set the extra segment to point to 0x0
-    mov ss, ax          ; Set the stack segement to point to 0x0
+    mov ss, ax          ; Set the stack segment to point to 0x0
     mov sp, 0x7c00      ; Set the Stack pointer to point at address 0x7c00
     sti                 ; Renable interrupts
 .load_protected:
-    cli
-    lgdt[gdt_descriptor]
-    mov eax, cr0
-    or  eax, 0x1
-    mov cr0, eax
-    jmp CODE_SEG:load_32
+    cli                 ; Clear interrupts
+    lgdt[gdt_descriptor]; Load GDT register with start address of Global Descriptor Table
+    mov eax, cr0        ; Copy the Control Register 0 value to eax
+    or  eax, 0x1        ; Set the first bit in the eax
+    mov cr0, eax        ; Set the Protection Enbale bit in CR0
+    jmp CODE_SEG:PModeMain
 ;
 
 gdt_start:
@@ -55,7 +55,7 @@ gdt_descriptor:
     dd gdt_start
 ;
 [BITS 32]
-load_32:
+PModeMain:
     mov ax, DATA_SET    ; Load data segment selector
     mov ds, ax
     mov es, ax
