@@ -16,10 +16,17 @@ start:
     sti                 ; Renable interrupts
 .load_protected:
     cli                 ; Clear interrupts
+    
+    ; Enable A20 line
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+
     lgdt[gdt_descriptor]; Load GDT register with start address of Global Descriptor Table
     mov eax, cr0        ; Copy the Control Register 0 value to eax
-    or  eax, 0x1        ; Set the first bit in the eax
+    or  al, 0x1         ; Set the first bit in the al
     mov cr0, eax        ; Set the Protection Enbale bit in CR0
+
     jmp CODE_SEG:PModeMain
 ;
 
@@ -65,11 +72,6 @@ PModeMain:
     mov ebp, 0x00200000 
     mov esp, ebp        ; Set up the stack pointer for protected mode
 
-    ; Enable A20 line
-    in al, 0x92
-    or al, 2
-    out 0x92, al
-    
     jmp $               ; Infinite jump so it doesn't try to execute our data
 ;
 
