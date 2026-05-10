@@ -64,6 +64,12 @@ PModeMain:
     mov ss, ax
     mov ebp, 0x00200000 
     mov esp, ebp        ; Set up the stack pointer for protected mode
+
+    ; Enable A20 line
+    in al, 0x92
+    or al, 2
+    out 0x92, al
+    
     jmp $               ; Infinite jump so it doesn't try to execute our data
 ;
 
