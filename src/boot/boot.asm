@@ -1,5 +1,5 @@
-ORG 0x7c00
-BITS 16                 ; Switch to 16-bit code to be able to work in real mode
+[ORG 0x7c00] 
+[BITS 16]                 ; Switch to 16-bit code to be able to work in real mode
 
 CODE_SEG equ gdt_code - gdt_start
 DATA_SET equ gdt_data - gdt_start

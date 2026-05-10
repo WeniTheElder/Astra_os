@@ -1,6 +1,6 @@
 .PHONY: run build clean
 
-run: build
+run: clean build
 	@echo "Booting..."
 	@sudo qemu-system-x86_64 -hda bin/boot.bin
 build: 
