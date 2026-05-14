@@ -2,7 +2,7 @@
 [BITS 16]                 ; Switch to 16-bit code to be able to work in real mode
 
 CODE_SEG equ gdt_code - gdt_start
-DATA_SET equ gdt_data - gdt_start
+DATA_SEG equ gdt_data - gdt_start
 
 jmp 0:start             ; Set cs to 0x7c0 and ip to start label
 
@@ -16,7 +16,7 @@ start:
     sti                 ; Renable interrupts
 .load_protected:
     cli                 ; Clear interrupts
-    
+
     ; Enable A20 line
     in al, 0x92
     or al, 2
@@ -27,7 +27,7 @@ start:
     or  al, 0x1         ; Set the first bit in the al
     mov cr0, eax        ; Set the Protection Enbale bit in CR0
 
-    jmp CODE_SEG:PModeMain
+    jmp CODE_SEG:load32
 ;
 
 gdt_start:
@@ -61,19 +61,67 @@ gdt_descriptor:
     dw gdt_end - gdt_start-1
     dd gdt_start
 ;
-[BITS 32]
-PModeMain:
-    mov ax, DATA_SET    ; Load data segment selector
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov ebp, 0x00200000 
-    mov esp, ebp        ; Set up the stack pointer for protected mode
 
-    jmp $               ; Infinite jump so it doesn't try to execute our data
+
+[BITS 32]
+load32:
+    mov eax, 1
+    mov ecx, 100
+    mov edi, 0x0100000
+    call ata_lba_read
+    jmp CODE_SEG:0x0100000
 ;
+
+ata_lba_read:
+    mov ebx, eax ; Backup the LBA
+    ; Send highest 8 bits of the lba to the controller
+    shr eax, 24  ; Shift eax 24 bits to the right
+    or eax, 0xE0 ; Select the master drive
+    mov dx, 0x1F6
+    out dx, al   
+    
+    ; Send total sectors to read
+    mov eax, ecx
+    mov dx, 0x1F2
+    out dx, al
+
+    mov eax, ebx ; Restore the LBA Backup
+    mov dx, 0x1F3
+    out dx, al
+
+    mov dx, 0x1F4
+    shr eax, 8
+    out dx, al
+
+    ; Send upper 16 bits of the LBA
+    mov dx, 0x1F5
+    mov eax, ebx
+    shr eax, 16
+    out dx, al
+
+    mov dx, 0x1F7
+    mov al, 0x20
+    out dx, al
+
+    ; Read all sectros into memory
+.next_sector:
+    push ecx
+
+; Checking if we need to read
+.try_again:
+    mov dx, 0x1F7
+    in al, dx
+    test al, 8
+    jz .try_again
+
+; We need to read 256 words at a times
+    mov ecx, 256
+    mov dx, 0x1F0
+    rep insw
+    pop ecx
+    loop .next_sector
+    ; End of reading sectors into memory
+    ret
 
 times 446 - ($-$$) db 0 ; Fill the rest of the sector with zeros until byte 446
 
