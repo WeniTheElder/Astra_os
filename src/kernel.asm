@@ -1,5 +1,5 @@
 [BITS 32]
-global _start
+global _start           ; Makes the label visible to the linker
 
 CODE_SEG equ 0x08
 DATA_SEG equ 0x10
