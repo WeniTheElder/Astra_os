@@ -1,8 +1,8 @@
 [ORG 0x7c00] 
 [BITS 16]                 ; Switch to 16-bit code to be able to work in real mode
 
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
+CODE_SEG equ gdt_code - gdt_start   ; 0x8
+DATA_SEG equ gdt_data - gdt_start   ; 0x10
 
 jmp 0:start             ; Set cs to 0x7c0 and ip to start label
 
@@ -23,15 +23,14 @@ start:
     out 0x92, al
 
     lgdt[gdt_descriptor]; Load GDT register with start address of Global Descriptor Table
-    mov eax, cr0        ; Copy the Control Register 0 value to eax
+    mov eax, cr0        ; Copy the Control Register0's value to eax
     or  al, 0x1         ; Set the first bit in the al
     mov cr0, eax        ; Set the Protection Enbale bit in CR0
 
-    jmp CODE_SEG:load32
+    jmp CODE_SEG:load32 ; 
 ;
 
 gdt_start:
-
 gdt_null:
     dd 0x0
     dd 0x0
@@ -65,57 +64,49 @@ gdt_descriptor:
 
 [BITS 32]
 load32:
-    mov eax, 1
-    mov ecx, 100
-    mov edi, 0x0100000
-    call ata_lba_read
-    jmp CODE_SEG:0x0100000
+    mov eax, 1              ; Start sector
+    mov edi, 0x0100000      ; Destination memory address (1MB)
+    call ata_lba_read       ; Load the kernel into memory address 1MB and jump to it
+    jmp CODE_SEG:0x0100000  
 ;
 
+
 ata_lba_read:
-    mov ebx, eax ; Backup the LBA
-    ; Send highest 8 bits of the lba to the controller
-    shr eax, 24  ; Shift eax 24 bits to the right
-    or eax, 0xE0 ; Select the master drive
-    mov dx, 0x1F6
-    out dx, al   
-    
-    ; Send total sectors to read
-    mov eax, ecx
-    mov dx, 0x1F2
-    out dx, al
+mov ebx, eax          ; Backup LBA
 
-    mov eax, ebx ; Restore the LBA Backup
-    mov dx, 0x1F3
-    out dx, al
+shr eax, 24           ; Bits 24-27
+or eax, 0xE0          ; Select master drive and LBA mode
+mov dx, 0x1F6
+out dx, al
 
-    mov dx, 0x1F4
-    shr eax, 8
-    out dx, al
+mov eax, ebx          ; Bits 0-7
+mov dx, 0x1F3
+out dx, al
 
-    ; Send upper 16 bits of the LBA
-    mov dx, 0x1F5
-    mov eax, ebx
-    shr eax, 16
-    out dx, al
+mov eax, ebx          ; Bits 8-15
+shr eax, 8
+mov dx, 0x1F4
+out dx, al
 
-    mov dx, 0x1F7
-    mov al, 0x20
-    out dx, al
+mov eax, ebx          ; Bits 16-23
+shr eax, 16
+mov dx, 0x1F5
+out dx, al
 
-    ; Read all sectros into memory
+
+; Read all sectros into memory
 .next_sector:
-    push ecx
+    push ecx    ; Store the sector counter in ecx
 
 ; Checking if we need to read
 .try_again:
     mov dx, 0x1F7
     in al, dx
     test al, 8
-    jz .try_again
-
-; We need to read 256 words at a times
-    mov ecx, 256
+    jz .try_again   ; Keep trying until 3rd bit is set, meaning controller is ready to send data
+    
+    ; Read 256 words (512 bytes = 1 sector) from data port 0x1F0
+    mov ecx, 256   
     mov dx, 0x1F0
     rep insw
     pop ecx
