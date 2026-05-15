@@ -1,6 +1,6 @@
 FILES = ./build/kernel.asm.o
 
-all: clean ./bin/boot.bin ./bin/kernel.bin
+build: clean ./bin/boot.bin ./bin/kernel.bin
 	dd if=./bin/boot.bin >> ./bin/os.bin
 	dd if=./bin/kernel.bin >> ./bin/os.bin
 	dd if=/dev/zero bs=512 count=100 >> ./bin/os.bin
