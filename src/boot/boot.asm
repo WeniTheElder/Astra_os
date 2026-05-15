@@ -63,6 +63,8 @@ gdt_descriptor:
 
 
 [BITS 32]
+
+
 load32:
     mov eax, 1              ; Start sector
     mov edi, 0x0100000      ; Destination memory address (1MB)
@@ -70,10 +72,9 @@ load32:
     jmp CODE_SEG:0x0100000  
 ;
 
-
 ata_lba_read:
-mov ebx, eax          ; Backup LBA
-
+mov ebx, eax          ; Backup LBA in ebx regiseter
+; Read LBA bits and send them on the corresponding port number
 shr eax, 24           ; Bits 24-27
 or eax, 0xE0          ; Select master drive and LBA mode
 mov dx, 0x1F6
@@ -96,7 +97,7 @@ out dx, al
 
 ; Read all sectros into memory
 .next_sector:
-    push ecx    ; Store the sector counter in ecx
+    push ecx        ; Store the sector counter in ecx
 
 ; Checking if we need to read
 .try_again:

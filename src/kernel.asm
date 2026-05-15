@@ -14,5 +14,5 @@ _start:
     mov ebp, 0x00200000 
     mov esp, ebp        ; Set up the stack pointer for protected mode
 
-    jmp $               ; Infinite jump so it doesn't try to execute our data
+    jmp $               ; Infinite jump so it doesn't try to execute uninitialized memeory
 ;
