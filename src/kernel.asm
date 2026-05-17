@@ -1,5 +1,7 @@
 [BITS 32]
+
 global _start           ; Makes the label visible to the linker
+extern kernel_start
 
 CODE_SEG equ 0x08
 DATA_SEG equ 0x10
@@ -13,7 +15,11 @@ _start:
     mov ss, ax
     mov ebp, 0x00200000 
     mov esp, ebp        ; Set up the stack pointer for protected mode
+    push ebp            ; Create stack frame
+    mov ebp, esp
 
+    call kernel_start
+    
     jmp $               ; Infinite jump so it doesn't try to execute uninitialized memeory
 ;
 times 512 - ($-$$) db 0
