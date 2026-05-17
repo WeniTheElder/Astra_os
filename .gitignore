@@ -1,4 +1,8 @@
 *.bin
+*.o
+*.asm.o
 *.txt
 *.md
 .vscode
+build/kernel.asm.o
+build/kernelfull.o
