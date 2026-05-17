@@ -24,6 +24,9 @@ SECTIONS {
         *(.bss)
         __bss_end = .;    /* Mark the end address of BSS */
     }
+    .asm : ALIGN(4K){
+        *(.asm)
+    }
 }
 /*  ALIGN(4K) ensures the section starts at a memory
     address divisible by 4096 bytes (a "page"). */

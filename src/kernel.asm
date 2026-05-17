@@ -16,3 +16,4 @@ _start:
 
     jmp $               ; Infinite jump so it doesn't try to execute uninitialized memeory
 ;
+times 512 - ($-$$) db 0
