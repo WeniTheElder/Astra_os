@@ -4,5 +4,3 @@
 *.txt
 *.md
 .vscode
-build/kernel.asm.o
-build/kernelfull.o
