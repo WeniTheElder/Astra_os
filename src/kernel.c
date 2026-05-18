@@ -62,4 +62,6 @@ void kernel_main(){
 
     print("Hello,world\n", video_mem);
     print("Second line", video_mem);
+    print(" Hello,world\n", video_mem);
+
 }
