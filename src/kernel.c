@@ -1,6 +1,7 @@
 #include "kernel.h"
 #include <stdint.h>
 #include <stddef.h>
+#include "idt/idt.h"
 
 // Global pointer to the VGA video memory
 uint16_t* video_mem = NULL;
@@ -62,9 +63,15 @@ void print(const char* str){
     }
 }
 
+extern void problem();
+
 void kernel_main(void){
     init_terminal();
 
-    print("Hello, world\n");
-    print("Second line");
+    print("Hello world\n");
+    // Initialize interrupt descriptor table
+    init_idt();
+    print("Hello world\n");
+
+    problem();
 }
