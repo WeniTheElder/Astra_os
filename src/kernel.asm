@@ -27,6 +27,4 @@ _start:
 
     jmp $
 
-problem:
-    int 0
 times 512-($-$$) db 0

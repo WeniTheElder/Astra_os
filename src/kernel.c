@@ -63,7 +63,6 @@ void print(const char* str){
     }
 }
 
-extern void problem();
 
 void kernel_main(void){
     init_terminal();
@@ -71,7 +70,4 @@ void kernel_main(void){
     print("Hello world\n");
     // Initialize interrupt descriptor table
     init_idt();
-    print("Hello world\n");
-
-    problem();
 }
