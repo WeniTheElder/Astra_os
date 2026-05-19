@@ -18,7 +18,7 @@ void idt_set(int interrupt_no, void* address){
     desc->offset_1 = (uint32_t) address & 0x0000ffff;
     desc->selector = KERNEL_CODE_SELECTOR;
     desc->zero = 0x00;
-    desc->type_attr = 0xEE;
+    desc->type_attr = 0xEE;         // 0b11101110 {1} desc is valid {11} ring 3 {0}reserved {1110} 32-bit Interrupt Gate
     desc->offset_2 = (uint32_t) address >> 16;
 }
 
@@ -29,7 +29,7 @@ void init_idt(){
     idtr_descriptor.limit = sizeof(idt_descriptors) - 1;
     idtr_descriptor.base = (uint32_t) idt_descriptors;
 
-    // Set the interrupt descriptor zero
+    // Set the interrupt descriptor zero (divide by zero)
     idt_set(0, idt_zero);
 
     // Load interrupt descriptor table

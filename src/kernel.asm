@@ -4,11 +4,11 @@
 global _start
 extern kernel_main
 
-CODE_SEG equ 0x08
-DATA_SEG equ 0x10
+CODE_SELECTOR equ 0x08
+DATA_SELECTOR equ 0x10
 
 _start:
-    mov ax, DATA_SEG
+    mov ax, DATA_SELECTOR
     mov ds, ax
     mov es, ax
     mov fs, ax
