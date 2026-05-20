@@ -22,6 +22,19 @@ _start:
     or al, 2
     out 0x92, al
 
+    ; Remap master PIC
+    mov al, 0b0001000
+    out 0x20, al 
+
+    mov al, 0x20 ; Interrupt 0x20 is where master ISR will start
+    out 0x21, al
+
+    mov al, 0b00000000
+    out 0x21, al
+
+    ; Renable interrupts
+    ; sti
+
     call kernel_main
 
     jmp $

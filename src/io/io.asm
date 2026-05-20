@@ -1,36 +1,35 @@
 section .asm
 
 global insb
-global insw
+global insws
 global outb
 global outw
 
 insb:
     push ebp
-    mov ebp, esp 
+    mov ebp, esp
 
-    xor eax, eax        ; zero eax
-    mov edx, [ebp+8]    ; Move the first paramter to the edx register 
-    in al, dx           
+    xor eax, eax
+    mov edx, [ebp+8]
+    in al, dx
 
     pop ebp
     ret
 
 insw:
     push ebp
-    mov ebp, esp 
+    mov ebp, esp
 
-    xor eax, eax        ; zero eax
-    mov edx, [ebp+8]    ; Move the first paramter to the edx register 
-    in ax, dx           
+    xor eax, eax
+    mov edx, [ebp+8]
+    in ax, dx
 
     pop ebp
     ret
 
 outb:
     push ebp
-    push ebp
-    mov ebp, esp 
+    mov ebp, esp
 
     mov eax, [ebp+12]
     mov edx, [ebp+8]
@@ -41,7 +40,7 @@ outb:
 
 outw:
     push ebp
-    mov ebp, esp 
+    mov ebp, esp
 
     mov eax, [ebp+12]
     mov edx, [ebp+8]

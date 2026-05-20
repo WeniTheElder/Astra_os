@@ -71,6 +71,4 @@ void kernel_main(void){
     print("Hello world\n");
     // Initialize interrupt descriptor table
     init_idt();
-
-    outb(0x60, 0xff);
 }
